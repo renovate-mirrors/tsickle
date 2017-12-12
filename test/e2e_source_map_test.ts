@@ -249,7 +249,7 @@ describe('source maps with transformer', () => {
     const sourceMap = getSourceMapWithName('input.js.map', files);
 
     assertSourceMapping(
-        compiledJs, sourceMap, 'let /** @type {number} */ x', {line: 1, source: 'input.ts'});
+        compiledJs, sourceMap, '/** @type {number} */\nlet x', {line: 1, source: 'input.ts'});
     assertSourceMapping(compiledJs, sourceMap, 'x + 1', {line: 2, source: 'input.ts'});
     assertSourceMapping(compiledJs, sourceMap, 'y.z', {line: 4, source: 'input.ts'});
   });

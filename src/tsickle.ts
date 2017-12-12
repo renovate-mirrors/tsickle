@@ -937,16 +937,23 @@ class Annotator extends ClosureRewriter {
         }
 
         if (docTags.length > 0 && node.getFirstToken()) {
-          this.emit('\n');
-          this.emit(jsdoc.toString(docTags));
           const isPolymerBehavior = docTags.some(t => t.tagName === 'polymerBehavior');
           if (isPolymerBehavior) {
             this.polymerBehaviorStackCount++;
           }
-          this.writeNodeFrom(node, node.getStart());
+          if (ts.isVariableStatement(node)) {
+            this.visitVariableStatement(node, docTags);
+          } else {
+            this.emit('\n');
+            this.emit(jsdoc.toString(docTags));
+            this.writeNodeFrom(node, node.getStart());
+          }
           if (isPolymerBehavior) {
             this.polymerBehaviorStackCount--;
           }
+          return true;
+        } else if (ts.isVariableStatement(node)) {
+          this.visitVariableStatement(node, docTags);
           return true;
         }
         break;
@@ -1222,6 +1229,26 @@ class Annotator extends ClosureRewriter {
       this.symbolsToAliasedNames.set(sym, qualifiedName);
     }
     return emitText;
+  }
+
+  private visitVariableStatement(varStmt: ts.VariableStatement, docTags: jsdoc.Tag[]) {
+    // Emit a separate variable statement per declaration in this statement, duplicating JSDoc.
+    // Initially tsickle would emit inline types (`var /** @type {string} */ x;`), but TypeScript's emit strips those comments for exports.
+    const keyword = varStmt.declarationList.getFirstToken().getText();
+    const additionalTags = jsdoc.toStringWithoutStartEnd(docTags);
+    for (const decl of varStmt.declarationList.declarations) {
+      this.emit('\n');
+      this.emitJSDocType(decl, additionalTags);
+      this.emit('\n');
+      if (hasModifierFlag(varStmt, ts.ModifierFlags.Export) ) this.emit('export ');
+      this.emit(keyword);
+      this.visit(decl.name);
+      if (decl.initializer) {
+        this.emit(' = ');
+        this.visit(decl.initializer);
+      }
+      this.emit(';');
+    }
   }
 
   private visitClassDeclaration(classDecl: ts.ClassDeclaration) {
