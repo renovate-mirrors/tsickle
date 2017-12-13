@@ -236,7 +236,7 @@ describe('source maps with transformer', () => {
     assertSourceMapping(compiledJs, sourceMap, 'another string', {line: 3, source: 'input2.ts'});
   });
 
-  it('maps at the start of lines correctly', () => {
+  fit('maps at the start of lines correctly', () => {
     const sources = new Map([[
       'input.ts', `let x : number = 2;
       x + 1;

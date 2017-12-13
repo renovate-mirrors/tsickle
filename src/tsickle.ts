@@ -1232,15 +1232,18 @@ class Annotator extends ClosureRewriter {
   }
 
   private visitVariableStatement(varStmt: ts.VariableStatement, docTags: jsdoc.Tag[]) {
+    this.addSourceMapping(varStmt);
     // Emit a separate variable statement per declaration in this statement, duplicating JSDoc.
     // Initially tsickle would emit inline types (`var /** @type {string} */ x;`), but TypeScript's emit strips those comments for exports.
     const keyword = varStmt.declarationList.getFirstToken().getText();
     const additionalTags = jsdoc.toStringWithoutStartEnd(docTags);
     for (const decl of varStmt.declarationList.declarations) {
       this.emit('\n');
+      this.addSourceMapping(decl);
       this.emitJSDocType(decl, additionalTags);
       this.emit('\n');
-      if (hasModifierFlag(varStmt, ts.ModifierFlags.Export) ) this.emit('export ');
+      if (hasModifierFlag(varStmt, ts.ModifierFlags.Export)) this.emit('export ');
+      this.addSourceMapping(decl);
       this.emit(keyword);
       this.visit(decl.name);
       if (decl.initializer) {

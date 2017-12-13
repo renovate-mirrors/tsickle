@@ -1,4 +1,5 @@
 // Warning at test_files/jsdoc/jsdoc.ts:44:3: unhandled anonymous type
+// Warning at test_files/jsdoc/jsdoc.ts:111:7: unhandled anonymous type
 // Warning at test_files/jsdoc/jsdoc.ts:16:1: the type annotation on @param is redundant with its TypeScript type, remove the {...} part
 // Warning at test_files/jsdoc/jsdoc.ts:35:3: the type annotation on @export is redundant with its TypeScript type, remove the {...} part
 // Warning at test_files/jsdoc/jsdoc.ts:40:3: @type annotations are redundant with TypeScript equivalents
@@ -134,21 +135,21 @@ class RedundantJSDocShouldBeStripped {
  * @return {void}
  */
 function JSDocWithBadTag() { }
-/**
+/** *
  * For example,
  * \@madeUpTag
- */
-const /** @type {string} */ c = 'c';
-/**
+  @type {string} */
+const c = 'c';
+/** *
  * Don't emit type comments for Polymer behaviors,
  * as this breaks their closure plugin :-(
  *
  * @polymerBehavior
- */
+  @type {?} */
 const somePolymerBehavior = {};
-/**
+/** *
  * Don't emit type comments for Polymer behaviors
  * if they are declared via the Polymer function.
- */
-let /** @type {?} */ Polymer;
+  @type {?} */
+let Polymer;
 Polymer({ behaviors: ['test'] });
