@@ -239,6 +239,11 @@ function getLineAndColumn(source: string, token: string): {line: number, column:
 export function assertSourceMapping(
     compiledJs: string, sourceMap: SourceMapConsumer, sourceSnippet: string,
     expectedPosition: {source: string, line?: number, column?: number}) {
+  console.error(compiledJs);
+  sourceMap.eachMapping(mapping => {
+    console.error(`${mapping.generatedLine}:${mapping.generatedColumn} -> ${mapping.originalLine}:${
+        mapping.originalColumn}`);
+  });
   const {line, column} = getLineAndColumn(compiledJs, sourceSnippet);
   console.error('line and column are', line, column, 'in', compiledJs);
   const originalPosition = sourceMap.originalPositionFor({line, column});

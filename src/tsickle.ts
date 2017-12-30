@@ -808,6 +808,7 @@ class Annotator extends ClosureRewriter {
         if (this.polymerBehaviorStackCount === 0 &&
             varDecl.name.kind === ts.SyntaxKind.Identifier) {
           this.emitJSDocType(varDecl);
+          this.addSourceMapping(varDecl);
         }
         return false;
       case ts.SyntaxKind.ClassDeclaration:
