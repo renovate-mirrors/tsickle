@@ -808,7 +808,6 @@ class Annotator extends ClosureRewriter {
         if (this.polymerBehaviorStackCount === 0 &&
             varDecl.name.kind === ts.SyntaxKind.Identifier) {
           this.emitJSDocType(varDecl);
-          this.addSourceMapping(varDecl);
         }
         return false;
       case ts.SyntaxKind.ClassDeclaration:
@@ -945,6 +944,7 @@ class Annotator extends ClosureRewriter {
           if (ts.isVariableStatement(node)) {
             this.visitVariableStatement(node, docTags);
           } else {
+            // Property declaration.
             this.emit('\n');
             this.emit(jsdoc.toString(docTags));
             this.writeNodeFrom(node, node.getStart());
@@ -957,6 +957,7 @@ class Annotator extends ClosureRewriter {
           this.visitVariableStatement(node, docTags);
           return true;
         }
+        // Property declaration without doc tags.
         break;
       case ts.SyntaxKind.PropertyAssignment:
         const pa = node as ts.PropertyAssignment;
@@ -1232,10 +1233,11 @@ class Annotator extends ClosureRewriter {
     return emitText;
   }
 
+  /** Emits a variable statement per declaration in this variable statement, duplicating JSDoc. */
   private visitVariableStatement(varStmt: ts.VariableStatement, docTags: jsdoc.Tag[]) {
+    // Previously tsickle would emit inline types (`var /** @type {string} */ x;`), but TypeScript's
+    // emit strips those comments for exports.
     this.addSourceMapping(varStmt);
-    // Emit a separate variable statement per declaration in this statement, duplicating JSDoc.
-    // Initially tsickle would emit inline types (`var /** @type {string} */ x;`), but TypeScript's emit strips those comments for exports.
     const keyword = varStmt.declarationList.getFirstToken().getText();
     const additionalTags = jsdoc.toStringWithoutStartEnd(docTags);
     for (const decl of varStmt.declarationList.declarations) {
