@@ -13,3 +13,7 @@ var v3;
 exports.v4 = 1;
 /** @type {number} */
 exports.v6 = 1;
+/** @type {number} */
+let v7 = 1;
+/** @type {number} */
+let v8 = 1;
