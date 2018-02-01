@@ -7,4 +7,4 @@ goog.module('test_files.export_equals.namespace');
 
 // Assign the external namespace. "SomeNamespace" is assumed to be loaded separately, e.g. through a
 // script tag or so.
-exports = SomeNamespace;
+exports = /** @type {tsickle_module_externs$test_files_export_equals_namespace.otherNamespace} */ (window['SomeNamespace']);

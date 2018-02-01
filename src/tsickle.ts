@@ -1607,9 +1607,42 @@ class ExternsWriter extends ClosureRewriter {
     switch (node.kind) {
       case ts.SyntaxKind.SourceFile:
         const sourceFile = node as ts.SourceFile;
+        if (ts.isExternalModule(sourceFile)) {
+          // .d.ts files that are modules do not declare global symbols - their symbols must be
+          // explicitly imported to be used. However Closure Compiler has no concept of externs that
+          // are modules and require imports. This code hides the global symbols from code by
+          // wrapping them in a top level variable that's unique to this file.
+          // This is necessary as symbols local to this can (and will very commonly) conflict with
+          // the namespace used in "export as namespace", e.g. "angular", and also to avoid users
+          // accidentally using these symbols in .js files (and more collisions).
+          // The symbols that are "hidden" like that can be made accessible through an "export as
+          // namespace" declaration (see below).
+          if (!sourceFile.statements.find(
+                  s => s.kind === ts.SyntaxKind.NamespaceExportDeclaration)) {
+            this.emit('\n// NOTE: externs module has no export as namespace declaration.\n');
+            this.emit('// exported symbols other than augmentations of modules will\n');
+            this.emit('// not be visible to Closure Compiler.\n');
+          }
+          const wrapper = 'tsickle_module_externs$' +
+              (this.host.pathToModuleName('', this.file.fileName).replace(/\./g, '_'));
+          this.emit('/**\n * module namespace wrapper\n * @const\n */\n');
+          this.writeExternsVariable(wrapper, [], '{}');
+          namespace = namespace.concat(wrapper);
+        }
         for (const stmt of sourceFile.statements) {
           this.visit(stmt, namespace);
         }
+        // Emit any export declarations at the very end, so that the symbols they alias are defined.
+        for (const s of sourceFile.statements) {
+          if (!ts.isNamespaceExportDeclaration(s)) continue;
+          this.writeExternsNamespaceExportDeclaration(s, namespace);
+        }
+        break;
+      case ts.SyntaxKind.ExportAssignment:
+        this.emit('\n// export assignment handled via export as namespace\n');
+        break;
+      case ts.SyntaxKind.NamespaceExportDeclaration:
+        this.emit('\n// export as namespace declaration handled at end of file\n');
         break;
       case ts.SyntaxKind.ModuleDeclaration:
         const decl = node as ts.ModuleDeclaration;
@@ -1905,6 +1938,42 @@ class ExternsWriter extends ClosureRewriter {
     const typeStr = this.typeToClosure(decl, undefined, true /* resolveAlias */);
     this.emit(`\n/** @typedef {${typeStr}} */\n`);
     this.writeExternsVariable(getIdentifierText(decl.name), namespace);
+  }
+
+  private writeExternsNamespaceExportDeclaration(
+      decl: ts.NamespaceExportDeclaration, namespace: string[]) {
+    // export as namespace foo publishes each symbol from this file into the global namespace
+    // foo, which is in TS only accessible when used in a script (i.e. non module) context.
+    // Closure Compiler doesn't have externs files for modules, so we emulate this by
+    // creating a mangled variable that exposes all symbols from the module, and then producing shim
+    // files that match up a fake goog.module() which explicitly references the generated type.
+    const sourceFile = decl.getSourceFile();
+    const sym = this.typeChecker.getSymbolAtLocation(sourceFile);
+    if (!sym) {
+      this.error(decl, `NamespaceExportDeclaration in a module without a symbol`);
+      return;
+    }
+    const exportName = getIdentifierText((decl as ts.NamespaceExportDeclaration).name);
+    this.emit(`/** @const @suppress {duplicate} */\n`);
+    this.writeExternsVariable(exportName, namespace, '{}');
+    const exports = this.typeChecker.getExportsOfModule(sym);
+    const exportedNamespace = namespace.concat([exportName]);
+    for (const exp of exports) {
+      this.emit('/** @const @suppress {duplicate} */\n');
+      const fqn = this.typeChecker.getFullyQualifiedName(exp);
+      if (fqn.match(/^['"]/)) {
+        // The exported symbol is simply a top level symbol within this module.
+        const fqnInNamespace = namespace.join('.') + '.' + exp.name;
+        this.writeExternsVariable(exp.name, exportedNamespace, fqnInNamespace);
+      } else {
+        // Exports might be from re-exported namespaces ("exports = angular"), so we must emit
+        // the fully qualified name here to reference the right symbol.
+        // This ends up being something like tsickle_module_externs$path_to_file.foo.Bar.
+        const fqnInNamespace = namespace.join('.') + '.' + fqn;
+        this.writeExternsVariable(exp.name, exportedNamespace, fqnInNamespace);
+      }
+      this.emit('\n');
+    }
   }
 }
 

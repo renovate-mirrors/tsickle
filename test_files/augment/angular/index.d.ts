@@ -1,4 +1,5 @@
 export = angular;
+export as namespace angular;
 
 declare var angular: string;
 

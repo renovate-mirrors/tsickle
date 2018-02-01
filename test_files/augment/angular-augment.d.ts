@@ -3,7 +3,7 @@
  * The interesting output is the generated externs.
  */
 
-import * as angular from './angular';
+import * as localAlias from './angular';
 
 declare module './angular' {
   /**
@@ -15,9 +15,11 @@ declare module './angular' {
   }
 
   /**
-   * sub is a new namespace introduced by this file.
+   * local is a new namespace introduced by this file.
    */
   namespace local {
     type LocalType = string;
+    // The type below should be emitted using the global name ('angular') for the symbol.
+    type UsingSymbolFromAugmentedModule = localAlias.IFooBar;
   }
 }

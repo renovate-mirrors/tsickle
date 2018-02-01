@@ -10,6 +10,5 @@ declare global {
   }
 }
 
-// TODO(evmar): this module-scoped export should be put in some namespace,
-// and not be global.
+// This symbol will be emitted hidden with the file name as its prefix.
 export var exported: string;
