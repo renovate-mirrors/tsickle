@@ -1935,7 +1935,7 @@ export function writeExterns(typeChecker: ts.TypeChecker, file: ts.SourceFile, h
 export function getGeneratedExterns(externs: {[fileName: string]: string}): string {
   let allExterns = EXTERNS_HEADER;
   for (const fileName of Object.keys(externs)) {
-    allExterns += `// externs from ${fileName}:\n`;
+    allExterns += `// externs from ${path.basename(fileName)}:\n`;
     allExterns += externs[fileName];
   }
   return allExterns;
