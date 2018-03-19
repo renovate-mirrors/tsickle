@@ -561,6 +561,7 @@ abstract class ClosureRewriter extends Rewriter {
 
     const typeChecker = this.typeChecker;
     if (!type) {
+      console.error('getTypeAtLocation', context);
       type = typeChecker.getTypeAtLocation(context);
     }
     return this.newTypeTranslator(context).translate(type, resolveAlias);
