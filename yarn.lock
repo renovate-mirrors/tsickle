@@ -1404,9 +1404,9 @@ memoizee@^0.4.3:
     next-tick "1"
     timers-ext "^0.1.2"
 
-merge2@1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.2.1.tgz#271d2516ff52d4af7f7b710b8bf3e16e183fef66"
+merge2@1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.2.2.tgz#03212e3da8d86c4d8523cebd6318193414f94e34"
 
 micromatch@^3.0.4:
   version "3.1.5"
