@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/tsickle
     docker:
-      - image: angular/ngcontainer:0.0.1
+      - image: angular/ngcontainer:0.3.2@sha256:46eeaef4b4918682e0163a2ec79cb11922688354034f372285b6bf62bf63f786
     steps:
       - checkout
       - restore_cache:
