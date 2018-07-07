@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/glob": "5.0.35",
-    "@types/jasmine": "2.8.6",
+    "@types/jasmine": "2.8.8",
     "@types/minimist": "1.2.0",
     "@types/mkdirp": "0.5.2",
     "@types/node": "^10.3.3",
