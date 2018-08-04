@@ -36,9 +36,13 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^10.3.3":
+"@types/node@*":
   version "10.3.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.3.3.tgz#8798d9e39af2fa604f715ee6a6b19796528e46c3"
+
+"@types/node@10.5.6":
+  version "10.5.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.6.tgz#1640f021dd0eaf12e731e54198c12ad2e020dc8e"
 
 ansi-regex@^2.0.0:
   version "2.1.1"
