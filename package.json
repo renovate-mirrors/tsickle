@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/diff-match-patch": "^1.0.32",
     "@types/glob": "5.0.35",
-    "@types/jasmine": "2.8.8",
+    "@types/jasmine": "2.8.14",
     "@types/minimist": "1.2.0",
     "@types/mkdirp": "0.5.2",
     "@types/node": "^10.5.6",
